@@ -39,11 +39,19 @@ abstract interface class RealmProviderBase {
   // gets the entry with the specified id
   T? entryWithId<T extends RealmObject>({required Object id});
 
-  // gets a list of entries that match the specified name
+  // gets a list of entries that match the match key
   List<T>? entriesList<T extends RealmObject>(
       {required String matchKey,
       required String sortKey,
       required Object value,
+      required int limit,
+      bool ascending = false});
+
+  // gets a list of entries where any values match the specified match key
+  List<T>? entriesListWhereAny<T extends RealmObject>(
+      {required String matchKey,
+      required String sortKey,
+      required Object[] values,
       required int limit,
       bool ascending = false});
 

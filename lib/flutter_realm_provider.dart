@@ -87,7 +87,7 @@ class RealmProvider implements RealmProviderBase {
     return results.first;
   }
 
-  // gets a list of entries that match the specified name
+  // gets a list of entries that match the match key
   @override
   List<T>? entriesList<T extends RealmObject>(
       {required String matchKey,
@@ -99,6 +99,24 @@ class RealmProvider implements RealmProviderBase {
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
     final RealmResults<T> results = query<T>(
         "$matchKey == \$0 SORT($sortKey $sort) $limitOptions", [value]);
+
+    if (results.isEmpty) return null;
+
+    return results.toList();
+  }
+
+  // gets a list of entries where any values match the specified match key
+  @override
+  List<T>? entriesList<T extends RealmObject>(
+      {required String matchKey,
+      required String sortKey,
+      required Object[] values,
+      required int limit,
+      bool ascending = false}) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
+    final RealmResults<T> results = query<T>(
+        "$matchKey == \$0 SORT($sortKey $sort) $limitOptions", values);
 
     if (results.isEmpty) return null;
 
