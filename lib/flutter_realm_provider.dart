@@ -110,13 +110,13 @@ class RealmProvider implements RealmProviderBase {
   List<T>? entriesListWhereAny<T extends RealmObject>(
       {required String matchKey,
       required String sortKey,
-      required Object[] values,
+      required List<Object> values,
       required int limit,
       bool ascending = false}) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final RealmResults<T> results = query<T>(
-        "$matchKey == \$0 SORT($sortKey $sort) $limitOptions", values);
+    final RealmResults<T> results =
+        query<T>("$matchKey == \$0 SORT($sortKey $sort) $limitOptions", values);
 
     if (results.isEmpty) return null;
 

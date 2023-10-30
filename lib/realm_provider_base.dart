@@ -51,7 +51,7 @@ abstract interface class RealmProviderBase {
   List<T>? entriesListWhereAny<T extends RealmObject>(
       {required String matchKey,
       required String sortKey,
-      required Object[] values,
+      required List<Object> values,
       required int limit,
       bool ascending = false});
 
