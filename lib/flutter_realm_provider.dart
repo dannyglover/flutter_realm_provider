@@ -107,7 +107,7 @@ class RealmProvider implements RealmProviderBase {
 
   // gets a list of entries where any values match the specified match key
   @override
-  List<T>? entriesList<T extends RealmObject>(
+  List<T>? entriesListWhereAny<T extends RealmObject>(
       {required String matchKey,
       required String sortKey,
       required Object[] values,
