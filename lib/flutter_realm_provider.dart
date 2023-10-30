@@ -115,8 +115,8 @@ class RealmProvider implements RealmProviderBase {
       bool ascending = false}) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final RealmResults<T> results =
-        query<T>("$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", values);
+    final RealmResults<T> results = query<T>(
+        "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", [values]);
 
     if (results.isEmpty) return null;
 
