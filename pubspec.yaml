@@ -1,7 +1,7 @@
 name: flutter_realm_provider
 description: A realm provider for flutter realm.
 publish_to: none
-version: 1.0.1
+version: 1.0.2
 homepage:
 
 environment:
