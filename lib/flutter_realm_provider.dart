@@ -15,10 +15,12 @@ class RealmProvider implements RealmProviderBase {
   RealmProvider();
 
   @override
-  void open(T,
-      {required int schemaVersion,
-      List<int>? encryptionKey,
-      bool runningTests = false}) async {
+  void open(
+    T, {
+    required int schemaVersion,
+    List<int>? encryptionKey,
+    bool runningTests = false,
+  }) async {
     if (runningTests) {
       realm = Realm(Configuration.inMemory(T));
       return;
@@ -41,15 +43,18 @@ class RealmProvider implements RealmProviderBase {
     return realm.all<T>().firstOrNull;
   }
 
-  // get the first realm object accociated with this object
+  // get the first realm object that matches the filters
   @override
-  T? oldestEntryWithName<T extends RealmObject>({
-    required String matchKey,
+  T? oldestEntryWithFilter<T extends RealmObject>({
+    required Map<String, Object> filters,
     required String sortKey,
-    required String name,
   }) {
+    final String filter = filters.entries.map((entry) {
+      int index = filters.entries.toList().indexOf(entry);
+      return "${entry.key} == \$$index";
+    }).join(" AND ");
     final RealmResults<T> results =
-        query<T>("$matchKey == \$0 SORT($sortKey ASC)", [name]);
+        query<T>("$filter SORT($sortKey ASC)", null);
 
     if (results.isEmpty) return null;
 
@@ -62,15 +67,18 @@ class RealmProvider implements RealmProviderBase {
     return realm.all<T>().lastOrNull;
   }
 
-  // get the last realm object accociated with this object
+  // get the last realm object that matches the filters
   @override
-  T? latestEntryWithName<T extends RealmObject>({
-    required String matchKey,
+  T? latestEntryWithFilter<T extends RealmObject>({
+    required Map<String, Object> filters,
     required String sortKey,
-    required String name,
   }) {
+    final String filter = filters.entries.map((entry) {
+      int index = filters.entries.toList().indexOf(entry);
+      return "${entry.key} == \$$index";
+    }).join(" AND ");
     final RealmResults<T> results =
-        query<T>("$matchKey == \$0 SORT($sortKey DESC)", [name]);
+        query<T>("$filter SORT($sortKey DESC)", null);
 
     if (results.isEmpty) return null;
 
@@ -87,32 +95,37 @@ class RealmProvider implements RealmProviderBase {
     return results.first;
   }
 
-  // gets a list of entries that match the match key
+  // gets a list of entries that match the filters
   @override
-  List<T>? entriesList<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required Object value,
-      required int limit,
-      bool ascending = false}) {
+  List<T>? entriesList<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required int limit,
+    bool ascending = false,
+  }) {
+    final String filter = filters.entries.map((entry) {
+      int index = filters.entries.toList().indexOf(entry);
+      return "${entry.key} == \$$index";
+    }).join(" AND ");
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final RealmResults<T> results = query<T>(
-        "$matchKey == \$0 SORT($sortKey $sort) $limitOptions", [value]);
+    final RealmResults<T> results =
+        query<T>("$filter SORT($sortKey $sort) $limitOptions", null);
 
     if (results.isEmpty) return null;
 
     return results.toList();
   }
 
-  // gets a list of entries where any values match the specified match key
+  // gets a list of entries where any values match the filters
   @override
-  List<T>? entriesListWhereAny<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required List<Object> values,
-      required int limit,
-      bool ascending = false}) {
+  List<T>? entriesListWhereAny<T extends RealmObject>({
+    required String matchKey,
+    required String sortKey,
+    required List<Object> values,
+    required int limit,
+    bool ascending = false,
+  }) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
     final RealmResults<T> results = query<T>(
@@ -123,25 +136,25 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // gets a list of entries that match the specified search query
+  // gets a list of entries that match the search query
   @override
-  List<T>? entriesListSearch<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required Object value,
-      required int limit,
-      String? distinctKey,
-      String? secondMatchKey,
-      bool ascending = false}) {
+  List<T>? entriesListSearch<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required int limit,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final String secondMatchOptions =
-        (secondMatchKey != null) ? " OR $secondMatchKey LIKE[c] \$0" : "";
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final String filter = filters.entries.map((entry) {
+      int index = filters.entries.toList().indexOf(entry);
+      return "${entry.key} LIKE[c] \$$index}";
+    }).join(" OR ");
     final RealmResults<T> results = query<T>(
-        "$matchKey LIKE[c] \$0 $secondMatchOptions SORT($sortKey $sort) $limitOptions $distinctOptions",
-        [value]);
+        "$filter SORT($sortKey $sort) $limitOptions $distinctOptions", null);
 
     if (results.isEmpty) return null;
 
@@ -150,8 +163,10 @@ class RealmProvider implements RealmProviderBase {
 
   // gets a list of every entry in the database, sorted
   @override
-  List<T>? entriesAllListSorted<T extends RealmObject>(
-      {required String sortKey, required bool ascending}) {
+  List<T>? entriesAllListSorted<T extends RealmObject>({
+    required String sortKey,
+    required bool ascending,
+  }) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final RealmResults<T> results =
         query<T>("TRUEPREDICATE SORT($sortKey $sort)", [""]);
@@ -163,10 +178,11 @@ class RealmProvider implements RealmProviderBase {
 
   // gets a list of every entry in the database with a distinct property, sorted
   @override
-  List<T>? entriesAllListDistinctSorted<T extends RealmObject>(
-      {required String distinctKey,
-      required String sortKey,
-      required bool ascending}) {
+  List<T>? entriesAllListDistinctSorted<T extends RealmObject>({
+    required String distinctKey,
+    required String sortKey,
+    required bool ascending,
+  }) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final RealmResults<T> results = query<T>(
         "TRUEPREDICATE SORT($sortKey $sort) DISTINCT($distinctKey)", [""]);
@@ -188,14 +204,15 @@ class RealmProvider implements RealmProviderBase {
 
   // returns a list of entries found between the two date ranges
   @override
-  List<T>? entriesInRange<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required String name,
-      required DateTime startDate,
-      required DateTime endDate,
-      bool ascending = false,
-      bool entireDay = false}) {
+  List<T>? entriesInRange<T extends RealmObject>({
+    required String matchKey,
+    required String sortKey,
+    required String name,
+    required DateTime startDate,
+    required DateTime endDate,
+    bool ascending = false,
+    bool entireDay = false,
+  }) {
     final String sort = (ascending) ? "ASC" : "DESC";
     DateTime realStartDate = startDate;
     DateTime realEndDate = endDate;
@@ -229,14 +246,13 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // removes an entry with the specified name
+  // removes an entry which matches the filters
   @override
-  void removeEntryWithName<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required String name}) {
-    final T? result =
-        latestEntryWithName(matchKey: matchKey, sortKey: sortKey, name: name);
+  void removeEntryWithFilter<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+  }) {
+    final T? result = latestEntryWithFilter(filters: filters, sortKey: sortKey);
 
     if (result == null) return;
 
@@ -247,14 +263,15 @@ class RealmProvider implements RealmProviderBase {
 
   // removes all entries between the two date ranges
   @override
-  void removeEntriesInRange<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required String name,
-      required DateTime startDate,
-      required DateTime endDate,
-      bool ascending = false,
-      bool entireDay = false}) {
+  void removeEntriesInRange<T extends RealmObject>({
+    required String matchKey,
+    required String sortKey,
+    required String name,
+    required DateTime startDate,
+    required DateTime endDate,
+    bool ascending = false,
+    bool entireDay = false,
+  }) {
     final List<T>? entriesList = entriesInRange<T>(
         matchKey: matchKey,
         sortKey: sortKey,
@@ -270,14 +287,14 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // removes all entries from the database with the provided name
+  // removes all entries which match the filters
   @override
-  void removeAllEntriesWithName<T extends RealmObject>(
-      {required String matchKey,
-      required String sortKey,
-      required String name}) {
-    final List<T>? results = entriesList(
-        matchKey: matchKey, sortKey: sortKey, value: name, limit: -1);
+  void removeAllEntriesWithFilter<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+  }) {
+    final List<T>? results =
+        entriesList(filters: filters, sortKey: sortKey, limit: -1);
 
     if (results == null || results.isEmpty) return;
 
