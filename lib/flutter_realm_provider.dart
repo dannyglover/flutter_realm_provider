@@ -154,10 +154,7 @@ class RealmProvider implements RealmProviderBase {
     int filterIndex = -1;
     final String filter = filters.entries.map((entry) {
       filterIndex++;
-
-      return (entry.value is String)
-          ? "${entry.key} LIKE[c] \$$filterIndex"
-          : "${entry.key} == \$$filterIndex";
+      return "${entry.key} LIKE[c] \$$filterIndex";
     }).join(" OR ");
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
