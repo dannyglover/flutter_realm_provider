@@ -53,8 +53,9 @@ class RealmProvider implements RealmProviderBase {
       int index = filters.entries.toList().indexOf(entry);
       return "${entry.key} == \$$index";
     }).join(" AND ");
+    final List<Object> values = filters.values.toList();
     final RealmResults<T> results =
-        query<T>("$filter SORT($sortKey ASC)", null);
+        query<T>("$filter SORT($sortKey ASC)", [values]);
 
     if (results.isEmpty) return null;
 
@@ -77,8 +78,9 @@ class RealmProvider implements RealmProviderBase {
       int index = filters.entries.toList().indexOf(entry);
       return "${entry.key} == \$$index";
     }).join(" AND ");
+    final List<Object> values = filters.values.toList();
     final RealmResults<T> results =
-        query<T>("$filter SORT($sortKey DESC)", null);
+        query<T>("$filter SORT($sortKey DESC)", [values]);
 
     if (results.isEmpty) return null;
 
@@ -107,10 +109,11 @@ class RealmProvider implements RealmProviderBase {
       int index = filters.entries.toList().indexOf(entry);
       return "${entry.key} == \$$index";
     }).join(" AND ");
+    final List<Object> values = filters.values.toList();
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
     final RealmResults<T> results =
-        query<T>("$filter SORT($sortKey $sort) $limitOptions", null);
+        query<T>("$filter SORT($sortKey $sort) $limitOptions", [values]);
 
     if (results.isEmpty) return null;
 
@@ -153,8 +156,10 @@ class RealmProvider implements RealmProviderBase {
       int index = filters.entries.toList().indexOf(entry);
       return "${entry.key} LIKE[c] \$$index}";
     }).join(" OR ");
+    final List<Object> values = filters.values.toList();
     final RealmResults<T> results = query<T>(
-        "$filter SORT($sortKey $sort) $limitOptions $distinctOptions", null);
+        "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
+        [values]);
 
     if (results.isEmpty) return null;
 
