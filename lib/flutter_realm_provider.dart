@@ -49,9 +49,10 @@ class RealmProvider implements RealmProviderBase {
     required Map<String, Object> filters,
     required String sortKey,
   }) {
+    int filterIndex = -1;
     final String filter = filters.entries.map((entry) {
-      int index = filters.entries.toList().indexOf(entry);
-      return "${entry.key} == \$$index";
+      filterIndex++;
+      return "${entry.key} == \$$filterIndex";
     }).join(" AND ");
     final List<Object> values = filters.values.toList();
     final RealmResults<T> results =
@@ -74,9 +75,10 @@ class RealmProvider implements RealmProviderBase {
     required Map<String, Object> filters,
     required String sortKey,
   }) {
+    int filterIndex = -1;
     final String filter = filters.entries.map((entry) {
-      int index = filters.entries.toList().indexOf(entry);
-      return "${entry.key} == \$$index";
+      filterIndex++;
+      return "${entry.key} == \$$filterIndex";
     }).join(" AND ");
     final List<Object> values = filters.values.toList();
     final RealmResults<T> results =
@@ -105,9 +107,10 @@ class RealmProvider implements RealmProviderBase {
     required int limit,
     bool ascending = false,
   }) {
+    int filterIndex = -1;
     final String filter = filters.entries.map((entry) {
-      int index = filters.entries.toList().indexOf(entry);
-      return "${entry.key} == \$$index";
+      filterIndex++;
+      return "${entry.key} == \$$filterIndex";
     }).join(" AND ");
     final List<Object> values = filters.values.toList();
     final String sort = (ascending) ? "ASC" : "DESC";
@@ -148,14 +151,15 @@ class RealmProvider implements RealmProviderBase {
     String? distinctKey,
     bool ascending = false,
   }) {
+    int filterIndex = -1;
+    final String filter = filters.entries.map((entry) {
+      filterIndex++;
+      return "${entry.key} LIKE[c] \$$filterIndex";
+    }).join(" OR ");
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final String filter = filters.entries.map((entry) {
-      int index = filters.entries.toList().indexOf(entry);
-      return "${entry.key} LIKE[c] \$$index}";
-    }).join(" OR ");
     final List<Object> values = filters.values.toList();
     final RealmResults<T> results = query<T>(
         "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
