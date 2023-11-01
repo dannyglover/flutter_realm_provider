@@ -47,6 +47,15 @@ abstract interface class RealmProviderBase {
     bool ascending = false,
   });
 
+  // gets a list of entries that match the filters and are distinct
+  List<T>? entriesListDistinct<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required String distinctKey,
+    required int limit,
+    bool ascending = false,
+  });
+
   // gets a list of entries where any values match the filters
   List<T>? entriesListWhereAny<T extends RealmObject>({
     required String matchKey,

@@ -123,6 +123,32 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
+  // gets a list of entries that match the filters and are distinct
+  @override
+  List<T>? entriesListDistinct<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required String distinctKey,
+    required int limit,
+    bool ascending = false,
+  }) {
+    int filterIndex = -1;
+    final String filter = filters.entries.map((entry) {
+      filterIndex++;
+      return "${entry.key} == \$$filterIndex";
+    }).join(" AND ");
+    final List<Object> values = filters.values.toList();
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
+    final RealmResults<T> results = query<T>(
+        "$filter SORT($sortKey $sort) $limitOptions DISTINCT($distinctKey)",
+        [...values]);
+
+    if (results.isEmpty) return null;
+
+    return results.toList();
+  }
+
   // gets a list of entries where any values match the filters
   @override
   List<T>? entriesListWhereAny<T extends RealmObject>({
