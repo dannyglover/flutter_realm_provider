@@ -53,6 +53,7 @@ abstract interface class RealmProviderBase {
     required String sortKey,
     required List<Object> values,
     required int limit,
+    Map<String, Object>? filters,
     bool ascending = false,
   });
 

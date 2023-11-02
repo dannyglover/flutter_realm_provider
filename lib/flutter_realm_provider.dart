@@ -134,12 +134,29 @@ class RealmProvider implements RealmProviderBase {
     required String sortKey,
     required List<Object> values,
     required int limit,
+    Map<String, Object>? filters,
     bool ascending = false,
   }) {
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final RealmResults<T> results = query<T>(
-        "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", [values]);
+    int filterIndex = -1;
+    final String? filter = (filters != null)
+        ? filters.entries.map((entry) {
+            filterIndex++;
+            return "${entry.key} == \$$filterIndex";
+          }).join(" AND ")
+        : null;
+    final List<Object>? filterValues =
+        (filters != null) ? filters.values.toList() : null;
+    final RealmResults<T>? filteredResults = (filters != null)
+        ? query<T>(
+            "$filter SORT($sortKey $sort) $limitOptions", [...filterValues!])
+        : null;
+    final RealmResults<T> results = (filteredResults != null)
+        ? filteredResults.query(
+            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", [values])
+        : query<T>(
+            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", [values]);
 
     if (results.isEmpty) return null;
 
@@ -173,10 +190,11 @@ class RealmProvider implements RealmProviderBase {
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
     final List<Object> searchValues = searchFilters.values.toList();
-    final List<Object>? values =
+    final List<Object>? filterValues =
         (filters != null) ? filters.values.toList() : null;
     final RealmResults<T>? filteredResults = (filters != null)
-        ? query<T>("$filter SORT($sortKey $sort) $limitOptions", [...values!])
+        ? query<T>(
+            "$filter SORT($sortKey $sort) $limitOptions", [...filterValues!])
         : null;
     final RealmResults<T> results = (filteredResults != null)
         ? filteredResults.query(
