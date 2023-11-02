@@ -67,8 +67,11 @@ abstract interface class RealmProviderBase {
   });
 
   // gets a list of every entry in the database
-  List<T>? entriesAllList<T extends RealmObject>({
-    String? sortKey,
+  List<T>? entriesAllList<T extends RealmObject>();
+
+  // gets a list of every entry in the database, sorted
+  List<T>? entriesAllListSorted<T extends RealmObject>({
+    required String sortKey,
     String? distinctKey,
     bool ascending = false,
   });

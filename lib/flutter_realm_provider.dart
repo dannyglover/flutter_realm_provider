@@ -211,6 +211,24 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
+  // gets a list of every entry in the database, sorted
+  @override
+  List<T>? entriesAllListSorted<T extends RealmObject>({
+    required String sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final RealmResults<T> results =
+        query<T>("TRUEPREDICATE SORT($sortKey $sort) $distinctOptions", [""]);
+
+    if (results.isEmpty) return null;
+
+    return results.toList();
+  }
+
   // returns a list of entries found between the two date ranges
   @override
   List<T>? entriesInRange<T extends RealmObject>({
