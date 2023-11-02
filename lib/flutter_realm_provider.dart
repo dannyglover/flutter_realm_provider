@@ -105,6 +105,7 @@ class RealmProvider implements RealmProviderBase {
     required Map<String, Object> filters,
     required String sortKey,
     required int limit,
+    String? distinctKey,
     bool ascending = false,
   }) {
     int filterIndex = -1;
@@ -115,33 +116,10 @@ class RealmProvider implements RealmProviderBase {
     final List<Object> values = filters.values.toList();
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final RealmResults<T> results =
-        query<T>("$filter SORT($sortKey $sort) $limitOptions", [...values]);
-
-    if (results.isEmpty) return null;
-
-    return results.toList();
-  }
-
-  // gets a list of entries that match the filters and are distinct
-  @override
-  List<T>? entriesListDistinct<T extends RealmObject>({
-    required Map<String, Object> filters,
-    required String sortKey,
-    required String distinctKey,
-    required int limit,
-    bool ascending = false,
-  }) {
-    int filterIndex = -1;
-    final String filter = filters.entries.map((entry) {
-      filterIndex++;
-      return "${entry.key} == \$$filterIndex";
-    }).join(" AND ");
-    final List<Object> values = filters.values.toList();
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
     final RealmResults<T> results = query<T>(
-        "$filter SORT($sortKey $sort) $limitOptions DISTINCT($distinctKey)",
+        "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
         [...values]);
 
     if (results.isEmpty) return null;
@@ -151,7 +129,7 @@ class RealmProvider implements RealmProviderBase {
 
   // gets a list of entries where any values match the filters
   @override
-  List<T>? entriesListWhereAny<T extends RealmObject>({
+  List<T>? entriesListWhereAnyIn<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
     required List<Object> values,
@@ -171,56 +149,42 @@ class RealmProvider implements RealmProviderBase {
   // gets a list of entries that match the search query
   @override
   List<T>? entriesListSearch<T extends RealmObject>({
-    required Map<String, Object> filters,
+    required Map<String, Object> searchFilters,
     required String sortKey,
     required int limit,
+    Map<String, Object>? filters,
     String? distinctKey,
     bool ascending = false,
   }) {
     int filterIndex = -1;
-    final String filter = filters.entries.map((entry) {
-      filterIndex++;
-      return "${entry.key} LIKE[c] \$$filterIndex";
+    int searchFilterIndex = -1;
+    final String filter = (filters != null)
+        ? filters.entries.map((entry) {
+            filterIndex++;
+            return "${entry.key} LIKE[c] \$$filterIndex";
+          }).join(" AND ")
+        : "";
+    final String searchFilter = searchFilters.entries.map((entry) {
+      searchFilterIndex++;
+      return "${entry.key} LIKE[c] \$$searchFilterIndex";
     }).join(" OR ");
     final String sort = (ascending) ? "ASC" : "DESC";
     final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final List<Object> values = filters.values.toList();
-    final RealmResults<T> results = query<T>(
-        "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
-        [...values]);
-
-    if (results.isEmpty) return null;
-
-    return results.toList();
-  }
-
-  // gets a list of every entry in the database, sorted
-  @override
-  List<T>? entriesAllListSorted<T extends RealmObject>({
-    required String sortKey,
-    required bool ascending,
-  }) {
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final RealmResults<T> results =
-        query<T>("TRUEPREDICATE SORT($sortKey $sort)", [""]);
-
-    if (results.isEmpty) return null;
-
-    return results.toList();
-  }
-
-  // gets a list of every entry in the database with a distinct property, sorted
-  @override
-  List<T>? entriesAllListDistinctSorted<T extends RealmObject>({
-    required String distinctKey,
-    required String sortKey,
-    required bool ascending,
-  }) {
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final RealmResults<T> results = query<T>(
-        "TRUEPREDICATE SORT($sortKey $sort) DISTINCT($distinctKey)", [""]);
+    final List<Object> searchValues = searchFilters.values.toList();
+    final List<Object>? values =
+        (filters != null) ? filters.values.toList() : null;
+    final RealmResults<T>? filteredResults = (filters != null)
+        ? query<T>("$filter SORT($sortKey $sort) $limitOptions", [...values!])
+        : null;
+    final RealmResults<T> results = (filteredResults != null)
+        ? filteredResults.query(
+            "$searchFilter SORT($sortKey $sort) $limitOptions $distinctOptions",
+            [...searchValues])
+        : query<T>(
+            "$searchFilter SORT($sortKey $sort) $limitOptions $distinctOptions",
+            [...searchValues]);
 
     if (results.isEmpty) return null;
 
@@ -229,8 +193,18 @@ class RealmProvider implements RealmProviderBase {
 
   // gets a list of every entry in the database
   @override
-  List<T>? entriesAllList<T extends RealmObject>() {
-    final RealmResults<T> results = realm.all<T>();
+  List<T>? entriesAllList<T extends RealmObject>({
+    String? sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String sortOptions = (sortKey != null) ? "SORT($sortKey $sort)" : "";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final RealmResults<T> results = (sortKey != null)
+        ? queryAll<T>("$sortOptions $distinctOptions", [""])
+        : realm.all<T>();
 
     if (results.isEmpty) return null;
 

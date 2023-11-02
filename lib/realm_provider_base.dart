@@ -47,17 +47,8 @@ abstract interface class RealmProviderBase {
     bool ascending = false,
   });
 
-  // gets a list of entries that match the filters and are distinct
-  List<T>? entriesListDistinct<T extends RealmObject>({
-    required Map<String, Object> filters,
-    required String sortKey,
-    required String distinctKey,
-    required int limit,
-    bool ascending = false,
-  });
-
   // gets a list of entries where any values match the filters
-  List<T>? entriesListWhereAny<T extends RealmObject>({
+  List<T>? entriesListWhereAnyIn<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
     required List<Object> values,
@@ -67,27 +58,19 @@ abstract interface class RealmProviderBase {
 
   // gets a list of entries that match the search query
   List<T>? entriesListSearch<T extends RealmObject>({
-    required Map<String, Object> filters,
+    required Map<String, Object> searchFilters,
     required String sortKey,
     required int limit,
+    Map<String, Object>? filters,
     String? distinctKey,
     bool ascending = false,
   });
 
   // gets a list of every entry in the database
-  List<T>? entriesAllList<T extends RealmObject>();
-
-  // gets a list of every entry in the database, sorted
-  List<T>? entriesAllListSorted<T extends RealmObject>({
-    required String sortKey,
-    required bool ascending,
-  });
-
-  // gets a list of every entry in the database with a distinct property, sorted
-  List<T>? entriesAllListDistinctSorted<T extends RealmObject>({
-    required String distinctKey,
-    required String sortKey,
-    required bool ascending,
+  List<T>? entriesAllList<T extends RealmObject>({
+    String? sortKey,
+    String? distinctKey,
+    bool ascending = false,
   });
 
   // returns a list of entries found between the two date ranges
