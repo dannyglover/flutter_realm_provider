@@ -161,7 +161,7 @@ class RealmProvider implements RealmProviderBase {
     final String filter = (filters != null)
         ? filters.entries.map((entry) {
             filterIndex++;
-            return "${entry.key} LIKE[c] \$$filterIndex";
+            return "${entry.key} == \$$filterIndex";
           }).join(" AND ")
         : "";
     final String searchFilter = searchFilters.entries.map((entry) {
