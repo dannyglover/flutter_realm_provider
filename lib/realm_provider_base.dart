@@ -9,6 +9,7 @@ abstract interface class RealmProviderBase {
   // see https://stackoverflow.com/a/40593526 for more info
   void open(
     T, {
+    required String path,
     required int schemaVersion,
     List<int>? encryptionKey,
     bool runningTests = false,

@@ -17,6 +17,7 @@ class RealmProvider implements RealmProviderBase {
   @override
   void open(
     T, {
+    required String path,
     required int schemaVersion,
     List<int>? encryptionKey,
     bool runningTests = false,
@@ -26,8 +27,14 @@ class RealmProvider implements RealmProviderBase {
       return;
     }
 
-    realm = Realm(Configuration.local(T,
-        schemaVersion: schemaVersion, encryptionKey: encryptionKey));
+    realm = Realm(
+      Configuration.local(
+        T,
+        path: path,
+        schemaVersion: schemaVersion,
+        encryptionKey: encryptionKey,
+      ),
+    );
   }
 
   @override
