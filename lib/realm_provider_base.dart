@@ -82,7 +82,7 @@ abstract interface class RealmProviderBase {
   List<T>? entriesInRange<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
-    required String name,
+    required Object value,
     required DateTime startDate,
     required DateTime endDate,
     bool ascending = false,
@@ -101,7 +101,7 @@ abstract interface class RealmProviderBase {
   void removeEntriesInRange<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
-    required String name,
+    required Object value,
     required DateTime startDate,
     required DateTime endDate,
     bool ascending = false,

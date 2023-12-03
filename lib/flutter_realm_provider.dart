@@ -259,7 +259,7 @@ class RealmProvider implements RealmProviderBase {
   List<T>? entriesInRange<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
-    required String name,
+    required Object value,
     required DateTime startDate,
     required DateTime endDate,
     bool ascending = false,
@@ -279,7 +279,7 @@ class RealmProvider implements RealmProviderBase {
 
     final RealmResults<T> results = query<T>(
         "$matchKey == \$0 AND $sortKey BETWEEN{\$1, \$2} SORT($sortKey $sort)",
-        [name, realStartDate, realEndDate]);
+        [value, realStartDate, realEndDate]);
 
     if (results.isEmpty) return null;
 
@@ -318,19 +318,20 @@ class RealmProvider implements RealmProviderBase {
   void removeEntriesInRange<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
-    required String name,
+    required Object value,
     required DateTime startDate,
     required DateTime endDate,
     bool ascending = false,
     bool entireDay = false,
   }) {
     final List<T>? entriesList = entriesInRange<T>(
-        matchKey: matchKey,
-        sortKey: sortKey,
-        name: name,
-        startDate: startDate,
-        endDate: endDate,
-        entireDay: entireDay);
+      matchKey: matchKey,
+      sortKey: sortKey,
+      value: value,
+      startDate: startDate,
+      endDate: endDate,
+      entireDay: entireDay,
+    );
 
     if (entriesList == null || entriesList.isEmpty) return;
 
