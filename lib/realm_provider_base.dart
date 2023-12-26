@@ -100,6 +100,7 @@ abstract interface class RealmProviderBase {
 
   // removes all entries between the two date ranges
   void removeEntriesInRange<T extends RealmObject>({
+    required String dateKey,
     required String matchKey,
     required String sortKey,
     required Object value,

@@ -317,6 +317,7 @@ class RealmProvider implements RealmProviderBase {
   // removes all entries between the two date ranges
   @override
   void removeEntriesInRange<T extends RealmObject>({
+    required String dateKey,
     required String matchKey,
     required String sortKey,
     required Object value,
@@ -326,6 +327,7 @@ class RealmProvider implements RealmProviderBase {
     bool entireDay = false,
   }) {
     final List<T>? entriesList = entriesInRange<T>(
+      dateKey: dateKey,
       matchKey: matchKey,
       sortKey: sortKey,
       value: value,
