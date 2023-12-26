@@ -258,6 +258,7 @@ class RealmProvider implements RealmProviderBase {
   @override
   List<T>? entriesInRange<T extends RealmObject>({
     required String matchKey,
+    required String dateKey,
     required String sortKey,
     required Object value,
     required DateTime startDate,
@@ -278,7 +279,7 @@ class RealmProvider implements RealmProviderBase {
     }
 
     final RealmResults<T> results = query<T>(
-        "$matchKey == \$0 AND $sortKey BETWEEN{\$1, \$2} SORT($sortKey $sort)",
+        "$matchKey == \$0 AND $dateKey BETWEEN{\$1, \$2} SORT($sortKey $sort)",
         [value, realStartDate, realEndDate]);
 
     if (results.isEmpty) return null;

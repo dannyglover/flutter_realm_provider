@@ -81,6 +81,7 @@ abstract interface class RealmProviderBase {
   // returns a list of entries found between the two date ranges
   List<T>? entriesInRange<T extends RealmObject>({
     required String matchKey,
+    required String dateKey,
     required String sortKey,
     required Object value,
     required DateTime startDate,
