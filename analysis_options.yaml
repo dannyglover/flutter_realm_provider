@@ -1,4 +1,23 @@
-include: package:flutter_lints/flutter.yaml
+include: package:very_good_analysis/analysis_options.yaml
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+analyzer:
+  exclude:
+   - lib/generated/models
+
+linter:
+  rules:
+    public_member_api_docs: true
+    prefer_single_quotes: false
+    omit_local_variable_types: false
+    unnecessary_parenthesis: false
+    constant_identifier_names: false
+    avoid_dynamic_calls: false
+    avoid_bool_literals_in_conditional_expressions: false
+    unnecessary_breaks: false
+    flutter_style_todos: false
+    no_default_cases: false
+    prefer_null_aware_method_calls: false
+    sort_pub_dependencies: false
+    file_names: true
+    use_raw_strings: false
+    

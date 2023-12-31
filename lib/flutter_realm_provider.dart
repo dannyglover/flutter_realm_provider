@@ -1,35 +1,47 @@
-// Flutter_Realm_Provider - Copyright 2023 Danny Glover
+/* Flutter Realm Provider: Copyright (C) 2024 Danny Glover
 
-library flutter_realm_provider;
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by 
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-import 'package:realm/realm.dart';
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see <https://www.gnu.org/licenses/>
+*/
+
 import 'package:flutter_realm_provider/realm_provider_base.dart';
+import 'package:realm/realm.dart';
 
+/// used for managing and interacting with a realm database
 class RealmProvider implements RealmProviderBase {
   @override
   late Realm realm;
-  // When you add or remove new properties to the database
-  // you have to change the schema version, so migrations can occur.
+
+  /// When you add or remove new properties to the database
+  /// you have to change the schema version, so migrations can occur.
   static const int schemaVersion = 1;
 
-  RealmProvider();
-
   @override
-  void open(
-    T, {
+  Future<void> open({
+    required List<SchemaObject> schemaList,
     required String path,
     required int schemaVersion,
     List<int>? encryptionKey,
     bool runningTests = false,
   }) async {
     if (runningTests) {
-      realm = Realm(Configuration.inMemory(T));
+      realm = Realm(Configuration.inMemory(schemaList));
       return;
     }
 
     realm = Realm(
       Configuration.local(
-        T,
+        schemaList,
         path: path,
         schemaVersion: schemaVersion,
         encryptionKey: encryptionKey,
@@ -39,7 +51,9 @@ class RealmProvider implements RealmProviderBase {
 
   @override
   void close() {
-    if (realm.isClosed) return;
+    if (realm.isClosed) {
+      return;
+    }
 
     realm.close();
   }
@@ -63,9 +77,11 @@ class RealmProvider implements RealmProviderBase {
     }).join(" AND ");
     final List<Object> values = filters.values.toList();
     final RealmResults<T> results =
-        query<T>("$filter SORT($sortKey ASC)", [...values]);
+        query<T>(query: "$filter SORT($sortKey ASC)", params: [...values]);
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.first;
   }
@@ -89,9 +105,11 @@ class RealmProvider implements RealmProviderBase {
     }).join(" AND ");
     final List<Object> values = filters.values.toList();
     final RealmResults<T> results =
-        query<T>("$filter SORT($sortKey DESC)", [...values]);
+        query<T>(query: "$filter SORT($sortKey DESC)", params: [...values]);
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.first;
   }
@@ -99,9 +117,11 @@ class RealmProvider implements RealmProviderBase {
   // gets the entry with the specified id
   @override
   T? entryWithId<T extends RealmObject>({required Object id}) {
-    final RealmResults<T> results = query<T>("id == \$0", [id]);
+    final RealmResults<T> results = query<T>(query: "id == \$0", params: [id]);
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.first;
   }
@@ -126,10 +146,13 @@ class RealmProvider implements RealmProviderBase {
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
     final RealmResults<T> results = query<T>(
-        "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
-        [...values]);
+      query: "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
+      params: [...values],
+    );
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.toList();
   }
@@ -157,15 +180,23 @@ class RealmProvider implements RealmProviderBase {
         (filters != null) ? filters.values.toList() : null;
     final RealmResults<T>? filteredResults = (filters != null)
         ? query<T>(
-            "$filter SORT($sortKey $sort) $limitOptions", [...filterValues!])
+            query: "$filter SORT($sortKey $sort) $limitOptions",
+            params: [...filterValues!],
+          )
         : null;
     final RealmResults<T> results = (filteredResults != null)
         ? filteredResults.query(
-            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", [values])
+            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions",
+            [values],
+          )
         : query<T>(
-            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions", [values]);
+            query: "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions",
+            params: [values],
+          );
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.toList();
   }
@@ -201,17 +232,24 @@ class RealmProvider implements RealmProviderBase {
         (filters != null) ? filters.values.toList() : null;
     final RealmResults<T>? filteredResults = (filters != null)
         ? query<T>(
-            "$filter SORT($sortKey $sort) $limitOptions", [...filterValues!])
+            query: "$filter SORT($sortKey $sort) $limitOptions",
+            params: [...filterValues!],
+          )
         : null;
     final RealmResults<T> results = (filteredResults != null)
         ? filteredResults.query(
             "$searchFilter SORT($sortKey $sort) $limitOptions $distinctOptions",
-            [...searchValues])
+            [...searchValues],
+          )
         : query<T>(
-            "$searchFilter SORT($sortKey $sort) $limitOptions $distinctOptions",
-            [...searchValues]);
+            query: "$searchFilter SORT($sortKey $sort)"
+                "$limitOptions $distinctOptions",
+            params: [...searchValues],
+          );
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.toList();
   }
@@ -228,10 +266,12 @@ class RealmProvider implements RealmProviderBase {
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
     final RealmResults<T> results = (sortKey != null)
-        ? queryAll<T>("$sortOptions $distinctOptions", [""])
+        ? queryAll<T>(query: "$sortOptions $distinctOptions", params: [""])
         : realm.all<T>();
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.toList();
   }
@@ -246,10 +286,14 @@ class RealmProvider implements RealmProviderBase {
     final String sort = (ascending) ? "ASC" : "DESC";
     final String distinctOptions =
         (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final RealmResults<T> results =
-        query<T>("TRUEPREDICATE SORT($sortKey $sort) $distinctOptions", [""]);
+    final RealmResults<T> results = query<T>(
+      query: "TRUEPREDICATE SORT($sortKey $sort) $distinctOptions",
+      params: [""],
+    );
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.toList();
   }
@@ -273,16 +317,28 @@ class RealmProvider implements RealmProviderBase {
     // start from the beginning of the first day, to the end of the last day
     if (entireDay) {
       realStartDate = startDate.copyWith(
-          hour: 0, minute: 0, millisecond: 0, microsecond: 0);
+        hour: 0,
+        minute: 0,
+        millisecond: 0,
+        microsecond: 0,
+      );
       realEndDate = endDate.copyWith(
-          hour: 23, minute: 59, millisecond: 0, microsecond: 0);
+        hour: 23,
+        minute: 59,
+        millisecond: 0,
+        microsecond: 0,
+      );
     }
 
     final RealmResults<T> results = query<T>(
-        "$matchKey == \$0 AND $dateKey BETWEEN{\$1, \$2} SORT($sortKey $sort)",
-        [value, realStartDate, realEndDate]);
+      query: "$matchKey == \$0 AND $dateKey"
+          "BETWEEN{\$1, \$2} SORT($sortKey $sort)",
+      params: [value, realStartDate, realEndDate],
+    );
 
-    if (results.isEmpty) return null;
+    if (results.isEmpty) {
+      return null;
+    }
 
     return results.toList();
   }
@@ -292,7 +348,9 @@ class RealmProvider implements RealmProviderBase {
   void removeEntryWithId<T extends RealmObject>({required Object id}) {
     final T? result = entryWithId<T>(id: id);
 
-    if (result == null) return;
+    if (result == null) {
+      return;
+    }
 
     realm.write(() {
       realm.delete(result);
@@ -307,7 +365,9 @@ class RealmProvider implements RealmProviderBase {
   }) {
     final T? result = latestEntryWithFilter(filters: filters, sortKey: sortKey);
 
-    if (result == null) return;
+    if (result == null) {
+      return;
+    }
 
     realm.write(() {
       realm.delete(result);
@@ -336,7 +396,9 @@ class RealmProvider implements RealmProviderBase {
       entireDay: entireDay,
     );
 
-    if (entriesList == null || entriesList.isEmpty) return;
+    if (entriesList == null || entriesList.isEmpty) {
+      return;
+    }
 
     realm.write(() {
       realm.deleteMany(entriesList);
@@ -352,7 +414,9 @@ class RealmProvider implements RealmProviderBase {
     final List<T>? results =
         entriesList(filters: filters, sortKey: sortKey, limit: -1);
 
-    if (results == null || results.isEmpty) return;
+    if (results == null || results.isEmpty) {
+      return;
+    }
 
     realm.write(() {
       realm.deleteMany(results);
@@ -369,25 +433,33 @@ class RealmProvider implements RealmProviderBase {
 
   // run a parameterized query on the database
   @override
-  RealmResults<T> query<T extends RealmObject>(
-      String query, List<Object>? params) {
-    if (params == null) return realm.query<T>(query);
+  RealmResults<T> query<T extends RealmObject>({
+    required String query,
+    required List<Object>? params,
+  }) {
+    if (params == null) {
+      return realm.query<T>(query);
+    }
 
     return realm.query<T>(query, params);
   }
 
   // run a parameterized query on the all items in the database
   @override
-  RealmResults<T> queryAll<T extends RealmObject>(
-      String query, List<Object>? params) {
-    if (params == null) return realm.all<T>().query(query);
+  RealmResults<T> queryAll<T extends RealmObject>({
+    required String query,
+    required List<Object>? params,
+  }) {
+    if (params == null) {
+      return realm.all<T>().query(query);
+    }
 
     return realm.all<T>().query(query, params);
   }
 
   // execute a realm write using the callback
   @override
-  void write(Function() callback) {
+  void write({required void Function() callback}) {
     realm.write(callback);
   }
 }
