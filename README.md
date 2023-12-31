@@ -1,39 +1,23 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+<div align="center">
+  <img src="github_images/logo.png" width="250" height="250">
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+  # Realm Provider
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+  Wrapper around the [Realm](https://realm.io/realm-flutter/) package. 
+</div>
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## About
 
-## Features
+RealmProvider is an open source Flutter package that provides easy access to [Realm](https://realm.io/realm-flutter/) functionality.
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+## Using Realm Provider In Your Flutter Project
 
-## Getting started
+Add the following to your Flutter projects `pubspec.yaml` file, then run `flutter pub get`
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
 ```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+flutter_realm_provider:
+    git: 
+      url: git@github.com:dannyglover/flutter_realm_provider.git
+      ref: commit_hash
+```
+Where `commit_hash` is the SHA hash of the commit you wish to use.
