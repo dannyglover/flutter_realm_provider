@@ -3,7 +3,7 @@
 
   # Realm Provider
 
-  Wrapper around the [Realm](https://realm.io/realm-flutter/) package. 
+  Wrapper around the [Realm](https://realm.io/realm-flutter/) package
 </div>
 
 ## About
