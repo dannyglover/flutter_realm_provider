@@ -58,6 +58,9 @@ abstract interface class RealmProviderBase {
   /// gets the entry with the specified id
   T? entryWithId<T extends RealmObject>({required Object id});
 
+  /// checks whether the entry with the specified id exists
+  bool entryExistsWithId<T extends RealmObject>({required Object id});
+
   /// gets a list of entries that match the given filters
   List<T>? entriesList<T extends RealmObject>({
     required Map<String, Object> filters,

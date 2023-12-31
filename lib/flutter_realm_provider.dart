@@ -58,13 +58,11 @@ class RealmProvider implements RealmProviderBase {
     realm.close();
   }
 
-  // get the first realm object in the table
   @override
   T? oldestEntry<T extends RealmObject>() {
     return realm.all<T>().firstOrNull;
   }
 
-  // get the first realm object that matches the filters
   @override
   T? oldestEntryWithFilter<T extends RealmObject>({
     required Map<String, Object> filters,
@@ -86,13 +84,11 @@ class RealmProvider implements RealmProviderBase {
     return results.first;
   }
 
-  // get the first realm object in the table
   @override
   T? latestEntry<T extends RealmObject>() {
     return realm.all<T>().lastOrNull;
   }
 
-  // get the last realm object that matches the filters
   @override
   T? latestEntryWithFilter<T extends RealmObject>({
     required Map<String, Object> filters,
@@ -114,7 +110,6 @@ class RealmProvider implements RealmProviderBase {
     return results.first;
   }
 
-  // gets the entry with the specified id
   @override
   T? entryWithId<T extends RealmObject>({required Object id}) {
     final RealmResults<T> results = query<T>(query: "id == \$0", params: [id]);
@@ -126,7 +121,13 @@ class RealmProvider implements RealmProviderBase {
     return results.first;
   }
 
-  // gets a list of entries that match the filters
+  @override
+  bool entryExistsWithId<T extends RealmObject>({required Object id}) {
+    final RealmResults<T> results = query<T>(query: "id == \$0", params: [id]);
+
+    return results.isNotEmpty;
+  }
+
   @override
   List<T>? entriesList<T extends RealmObject>({
     required Map<String, Object> filters,
@@ -157,7 +158,6 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // gets a list of entries where any values match the filters
   @override
   List<T>? entriesListWhereAnyIn<T extends RealmObject>({
     required String matchKey,
@@ -201,7 +201,6 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // gets a list of entries that match the search query
   @override
   List<T>? entriesListSearch<T extends RealmObject>({
     required Map<String, Object> searchFilters,
@@ -254,7 +253,6 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // gets a list of every entry in the database
   @override
   List<T>? entriesAllList<T extends RealmObject>({
     String? sortKey,
@@ -276,7 +274,6 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // gets a list of every entry in the database, sorted
   @override
   List<T>? entriesAllListSorted<T extends RealmObject>({
     required String sortKey,
@@ -298,7 +295,6 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // returns a list of entries found between the two date ranges
   @override
   List<T>? entriesInRange<T extends RealmObject>({
     required String matchKey,
@@ -343,7 +339,6 @@ class RealmProvider implements RealmProviderBase {
     return results.toList();
   }
 
-  // removes an entry with the specified id
   @override
   void removeEntryWithId<T extends RealmObject>({required Object id}) {
     final T? result = entryWithId<T>(id: id);
@@ -357,7 +352,6 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // removes an entry which matches the filters
   @override
   void removeEntryWithFilter<T extends RealmObject>({
     required Map<String, Object> filters,
@@ -374,7 +368,6 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // removes all entries between the two date ranges
   @override
   void removeEntriesInRange<T extends RealmObject>({
     required String dateKey,
@@ -405,7 +398,6 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // removes all entries which match the filters
   @override
   void removeAllEntriesWithFilter<T extends RealmObject>({
     required Map<String, Object> filters,
@@ -423,7 +415,6 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // removes all entries from the database
   @override
   void removeAllEntries<T extends RealmObject>() {
     realm.write(() {
@@ -431,7 +422,6 @@ class RealmProvider implements RealmProviderBase {
     });
   }
 
-  // run a parameterized query on the database
   @override
   RealmResults<T> query<T extends RealmObject>({
     required String query,
@@ -444,7 +434,6 @@ class RealmProvider implements RealmProviderBase {
     return realm.query<T>(query, params);
   }
 
-  // run a parameterized query on the all items in the database
   @override
   RealmResults<T> queryAll<T extends RealmObject>({
     required String query,
@@ -457,7 +446,6 @@ class RealmProvider implements RealmProviderBase {
     return realm.all<T>().query(query, params);
   }
 
-  // execute a realm write using the callback
   @override
   void write({required void Function() callback}) {
     realm.write(callback);
