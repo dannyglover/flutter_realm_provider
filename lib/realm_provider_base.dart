@@ -29,6 +29,7 @@ abstract interface class RealmProviderBase {
     required String path,
     required int schemaVersion,
     List<int>? encryptionKey,
+    bool compactOnOpen = false,
     bool runningTests = false,
   });
 

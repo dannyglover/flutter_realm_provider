@@ -32,6 +32,7 @@ class RealmProvider implements RealmProviderBase {
     required String path,
     required int schemaVersion,
     List<int>? encryptionKey,
+    bool compactOnOpen = false,
     bool runningTests = false,
   }) async {
     if (runningTests) {
@@ -45,6 +46,7 @@ class RealmProvider implements RealmProviderBase {
         path: path,
         schemaVersion: schemaVersion,
         encryptionKey: encryptionKey,
+        shouldCompactCallback: (totalSize, usedSize) => compactOnOpen,
       ),
     );
   }
