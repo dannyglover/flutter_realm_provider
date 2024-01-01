@@ -242,7 +242,7 @@ class RealmProvider implements RealmProviderBase {
           )
         : query<T>(
             query: "$searchFilter SORT($sortKey $sort)"
-                "$limitOptions $distinctOptions",
+                " $limitOptions $distinctOptions",
             params: [...searchValues],
           );
 
@@ -328,7 +328,7 @@ class RealmProvider implements RealmProviderBase {
 
     final RealmResults<T> results = query<T>(
       query: "$matchKey == \$0 AND $dateKey"
-          "BETWEEN{\$1, \$2} SORT($sortKey $sort)",
+          " BETWEEN{\$1, \$2} SORT($sortKey $sort)",
       params: [value, realStartDate, realEndDate],
     );
 
