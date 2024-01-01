@@ -46,7 +46,7 @@ class RealmProvider implements RealmProviderBase {
         path: path,
         schemaVersion: schemaVersion,
         encryptionKey: encryptionKey,
-        shouldCompactCallback: (totalSize, usedSize) => compactOnOpen,
+        shouldCompactCallback: (totalSize, usedSize) => compactOnOpen == true,
       ),
     );
   }
