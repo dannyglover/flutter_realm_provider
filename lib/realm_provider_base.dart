@@ -29,8 +29,7 @@ abstract interface class RealmProviderBase {
     required String path,
     required int schemaVersion,
     List<int>? encryptionKey,
-    bool compactOnOpen,
-    bool runningTests,
+    bool runningTests = false,
   });
 
   // only call when you want to change the schema.
