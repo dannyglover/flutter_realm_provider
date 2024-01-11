@@ -338,6 +338,7 @@ class RealmProvider implements RealmProviderBase {
     required Object value,
     required DateTime startDate,
     required DateTime endDate,
+    String? distinctKey,
     bool ascending = false,
     bool entireDay = false,
   }) {
@@ -348,6 +349,7 @@ class RealmProvider implements RealmProviderBase {
       value: value,
       startDate: startDate,
       endDate: endDate,
+      distinctKey: distinctKey,
       ascending: ascending,
       entireDay: entireDay,
     );
@@ -367,6 +369,7 @@ class RealmProvider implements RealmProviderBase {
     required Object value,
     required DateTime startDate,
     required DateTime endDate,
+    String? distinctKey,
     bool ascending = false,
     bool entireDay = false,
   }) {
@@ -377,6 +380,7 @@ class RealmProvider implements RealmProviderBase {
       value: value,
       startDate: startDate,
       endDate: endDate,
+      distinctKey: distinctKey,
       ascending: ascending,
       entireDay: entireDay,
     );
@@ -645,6 +649,7 @@ class RealmProvider implements RealmProviderBase {
     required Object value,
     required DateTime startDate,
     required DateTime endDate,
+    String? distinctKey,
     bool ascending = false,
     bool entireDay = false,
   }) {
@@ -670,7 +675,7 @@ class RealmProvider implements RealmProviderBase {
 
     final RealmResults<T> results = query<T>(
       query: "$matchKey == \$0 AND $dateKey"
-          " BETWEEN{\$1, \$2} SORT($sortKey $sort)",
+          " BETWEEN{\$1, \$2} SORT($sortKey $sort) $distinctKey",
       params: [value, realStartDate, realEndDate],
     );
 

@@ -155,6 +155,7 @@ abstract interface class RealmProviderBase {
     required Object value,
     required DateTime startDate,
     required DateTime endDate,
+    String? distinctKey,
     bool ascending = false,
     bool entireDay = false,
   });
@@ -167,6 +168,7 @@ abstract interface class RealmProviderBase {
     required Object value,
     required DateTime startDate,
     required DateTime endDate,
+    String? distinctKey,
     bool ascending = false,
     bool entireDay = false,
   });
