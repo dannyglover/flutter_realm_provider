@@ -654,6 +654,7 @@ class RealmProvider implements RealmProviderBase {
     bool entireDay = false,
   }) {
     final String sort = (ascending) ? "ASC" : "DESC";
+    final String distinctOptions = distinctKey ?? "";
     DateTime realStartDate = startDate;
     DateTime realEndDate = endDate;
 
@@ -675,7 +676,7 @@ class RealmProvider implements RealmProviderBase {
 
     final RealmResults<T> results = query<T>(
       query: "$matchKey == \$0 AND $dateKey"
-          " BETWEEN{\$1, \$2} SORT($sortKey $sort) $distinctKey",
+          " BETWEEN{\$1, \$2} SORT($sortKey $sort) $distinctOptions",
       params: [value, realStartDate, realEndDate],
     );
 
