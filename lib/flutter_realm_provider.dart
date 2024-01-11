@@ -654,7 +654,8 @@ class RealmProvider implements RealmProviderBase {
     bool entireDay = false,
   }) {
     final String sort = (ascending) ? "ASC" : "DESC";
-    final String distinctOptions = distinctKey ?? "";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
     DateTime realStartDate = startDate;
     DateTime realEndDate = endDate;
 
