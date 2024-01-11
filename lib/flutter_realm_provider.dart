@@ -136,26 +136,38 @@ class RealmProvider implements RealmProviderBase {
     String? distinctKey,
     bool ascending = false,
   }) {
-    int filterIndex = -1;
-    final String filter = filters.entries.map((entry) {
-      filterIndex++;
-      return "${entry.key} == \$$filterIndex";
-    }).join(" AND ");
-    final List<Object> values = filters.values.toList();
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final String distinctOptions =
-        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final RealmResults<T> results = query<T>(
-      query: "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
-      params: [...values],
+    final RealmResults<T>? results = _entriesList<T>(
+      filters: filters,
+      sortKey: sortKey,
+      limit: limit,
+      distinctKey: distinctKey,
+      ascending: ascending,
     );
 
-    if (results.isEmpty) {
+    if (results == null) {
       return null;
     }
 
     return results.toList();
+  }
+
+  @override
+  int entriesListCount<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required int limit,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final RealmResults<T>? results = _entriesList<T>(
+      filters: filters,
+      sortKey: sortKey,
+      limit: limit,
+      distinctKey: distinctKey,
+      ascending: ascending,
+    );
+
+    return results?.length ?? 0;
   }
 
   @override
@@ -167,38 +179,41 @@ class RealmProvider implements RealmProviderBase {
     Map<String, Object>? filters,
     bool ascending = false,
   }) {
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    int filterIndex = -1;
-    final String? filter = (filters != null)
-        ? filters.entries.map((entry) {
-            filterIndex++;
-            return "${entry.key} == \$$filterIndex";
-          }).join(" AND ")
-        : null;
-    final List<Object>? filterValues =
-        (filters != null) ? filters.values.toList() : null;
-    final RealmResults<T>? filteredResults = (filters != null)
-        ? query<T>(
-            query: "$filter SORT($sortKey $sort) $limitOptions",
-            params: [...filterValues!],
-          )
-        : null;
-    final RealmResults<T> results = (filteredResults != null)
-        ? filteredResults.query(
-            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions",
-            [values],
-          )
-        : query<T>(
-            query: "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions",
-            params: [values],
-          );
+    final RealmResults<T>? results = _entriesListWhereAnyIn<T>(
+      matchKey: matchKey,
+      sortKey: sortKey,
+      values: values,
+      limit: limit,
+      filters: filters,
+      ascending: ascending,
+    );
 
-    if (results.isEmpty) {
+    if (results == null) {
       return null;
     }
 
     return results.toList();
+  }
+
+  @override
+  int entriesListWhereAnyInCount<T extends RealmObject>({
+    required String matchKey,
+    required String sortKey,
+    required List<Object> values,
+    required int limit,
+    Map<String, Object>? filters,
+    bool ascending = false,
+  }) {
+    final RealmResults<T>? results = _entriesListWhereAnyIn<T>(
+      matchKey: matchKey,
+      sortKey: sortKey,
+      values: values,
+      limit: limit,
+      filters: filters,
+      ascending: ascending,
+    );
+
+    return results?.length ?? 0;
   }
 
   @override
@@ -210,47 +225,41 @@ class RealmProvider implements RealmProviderBase {
     String? distinctKey,
     bool ascending = false,
   }) {
-    int filterIndex = -1;
-    int searchFilterIndex = -1;
-    final String filter = (filters != null)
-        ? filters.entries.map((entry) {
-            filterIndex++;
-            return "${entry.key} == \$$filterIndex";
-          }).join(" AND ")
-        : "";
-    final String searchFilter = searchFilters.entries.map((entry) {
-      searchFilterIndex++;
-      return "${entry.key} LIKE[c] \$$searchFilterIndex";
-    }).join(" OR ");
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
-    final String distinctOptions =
-        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final List<Object> searchValues = searchFilters.values.toList();
-    final List<Object>? filterValues =
-        (filters != null) ? filters.values.toList() : null;
-    final RealmResults<T>? filteredResults = (filters != null)
-        ? query<T>(
-            query: "$filter SORT($sortKey $sort) $limitOptions",
-            params: [...filterValues!],
-          )
-        : null;
-    final RealmResults<T> results = (filteredResults != null)
-        ? filteredResults.query(
-            "$searchFilter SORT($sortKey $sort) $limitOptions $distinctOptions",
-            [...searchValues],
-          )
-        : query<T>(
-            query: "$searchFilter SORT($sortKey $sort)"
-                " $limitOptions $distinctOptions",
-            params: [...searchValues],
-          );
+    final RealmResults<T>? results = _entriesListSearch(
+      searchFilters: searchFilters,
+      sortKey: sortKey,
+      limit: limit,
+      filters: filters,
+      distinctKey: distinctKey,
+      ascending: ascending,
+    );
 
-    if (results.isEmpty) {
+    if (results == null) {
       return null;
     }
 
     return results.toList();
+  }
+
+  @override
+  int entriesListSearchCount<T extends RealmObject>({
+    required Map<String, Object> searchFilters,
+    required String sortKey,
+    required int limit,
+    Map<String, Object>? filters,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final RealmResults<T>? results = _entriesListSearch(
+      searchFilters: searchFilters,
+      sortKey: sortKey,
+      limit: limit,
+      filters: filters,
+      distinctKey: distinctKey,
+      ascending: ascending,
+    );
+
+    return results?.length ?? 0;
   }
 
   @override
@@ -259,19 +268,32 @@ class RealmProvider implements RealmProviderBase {
     String? distinctKey,
     bool ascending = false,
   }) {
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final String sortOptions = (sortKey != null) ? "SORT($sortKey $sort)" : "";
-    final String distinctOptions =
-        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final RealmResults<T> results = (sortKey != null)
-        ? queryAll<T>(query: "$sortOptions $distinctOptions", params: [""])
-        : realm.all<T>();
+    final RealmResults<T>? results = _entriesAllList(
+      sortKey: sortKey,
+      distinctKey: distinctKey,
+      ascending: ascending,
+    );
 
-    if (results.isEmpty) {
+    if (results == null) {
       return null;
     }
 
     return results.toList();
+  }
+
+  @override
+  int entriesAllListCount<T extends RealmObject>({
+    String? sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final RealmResults<T>? results = _entriesAllList(
+      sortKey: sortKey,
+      distinctKey: distinctKey,
+      ascending: ascending,
+    );
+
+    return results?.length ?? 0;
   }
 
   @override
@@ -280,19 +302,32 @@ class RealmProvider implements RealmProviderBase {
     String? distinctKey,
     bool ascending = false,
   }) {
-    final String sort = (ascending) ? "ASC" : "DESC";
-    final String distinctOptions =
-        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
-    final RealmResults<T> results = query<T>(
-      query: "TRUEPREDICATE SORT($sortKey $sort) $distinctOptions",
-      params: [""],
+    final RealmResults<T>? results = _entriesAllListSorted(
+      sortKey: sortKey,
+      distinctKey: distinctKey,
+      ascending: ascending,
     );
 
-    if (results.isEmpty) {
+    if (results == null) {
       return null;
     }
 
     return results.toList();
+  }
+
+  @override
+  int entriesAllListSortedCount<T extends RealmObject>({
+    required String sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final RealmResults<T>? results = _entriesAllListSorted(
+      sortKey: sortKey,
+      distinctKey: distinctKey,
+      ascending: ascending,
+    );
+
+    return results?.length ?? 0;
   }
 
   @override
@@ -306,37 +341,47 @@ class RealmProvider implements RealmProviderBase {
     bool ascending = false,
     bool entireDay = false,
   }) {
-    final String sort = (ascending) ? "ASC" : "DESC";
-    DateTime realStartDate = startDate;
-    DateTime realEndDate = endDate;
-
-    // start from the beginning of the first day, to the end of the last day
-    if (entireDay) {
-      realStartDate = startDate.copyWith(
-        hour: 0,
-        minute: 0,
-        millisecond: 0,
-        microsecond: 0,
-      );
-      realEndDate = endDate.copyWith(
-        hour: 23,
-        minute: 59,
-        millisecond: 0,
-        microsecond: 0,
-      );
-    }
-
-    final RealmResults<T> results = query<T>(
-      query: "$matchKey == \$0 AND $dateKey"
-          " BETWEEN{\$1, \$2} SORT($sortKey $sort)",
-      params: [value, realStartDate, realEndDate],
+    final RealmResults<T>? results = _entriesInRange(
+      matchKey: matchKey,
+      dateKey: dateKey,
+      sortKey: sortKey,
+      value: value,
+      startDate: startDate,
+      endDate: endDate,
+      ascending: ascending,
+      entireDay: entireDay,
     );
 
-    if (results.isEmpty) {
+    if (results == null) {
       return null;
     }
 
     return results.toList();
+  }
+
+  @override
+  int entriesInRangeCount<T extends RealmObject>({
+    required String matchKey,
+    required String dateKey,
+    required String sortKey,
+    required Object value,
+    required DateTime startDate,
+    required DateTime endDate,
+    bool ascending = false,
+    bool entireDay = false,
+  }) {
+    final RealmResults<T>? results = _entriesInRange(
+      matchKey: matchKey,
+      dateKey: dateKey,
+      sortKey: sortKey,
+      value: value,
+      startDate: startDate,
+      endDate: endDate,
+      ascending: ascending,
+      entireDay: entireDay,
+    );
+
+    return results?.length ?? 0;
   }
 
   @override
@@ -449,5 +494,187 @@ class RealmProvider implements RealmProviderBase {
   @override
   void write({required void Function() callback}) {
     realm.write(callback);
+  }
+
+  RealmResults<T>? _entriesList<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required int limit,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    int filterIndex = -1;
+    final String filter = filters.entries.map((entry) {
+      filterIndex++;
+      return "${entry.key} == \$$filterIndex";
+    }).join(" AND ");
+    final List<Object> values = filters.values.toList();
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final RealmResults<T> results = query<T>(
+      query: "$filter SORT($sortKey $sort) $limitOptions $distinctOptions",
+      params: [...values],
+    );
+
+    return results;
+  }
+
+  @override
+  RealmResults<T>? _entriesListWhereAnyIn<T extends RealmObject>({
+    required String matchKey,
+    required String sortKey,
+    required List<Object> values,
+    required int limit,
+    Map<String, Object>? filters,
+    bool ascending = false,
+  }) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
+    int filterIndex = -1;
+    final String? filter = (filters != null)
+        ? filters.entries.map((entry) {
+            filterIndex++;
+            return "${entry.key} == \$$filterIndex";
+          }).join(" AND ")
+        : null;
+    final List<Object>? filterValues =
+        (filters != null) ? filters.values.toList() : null;
+    final RealmResults<T>? filteredResults = (filters != null)
+        ? query<T>(
+            query: "$filter SORT($sortKey $sort) $limitOptions",
+            params: [...filterValues!],
+          )
+        : null;
+    final RealmResults<T> results = (filteredResults != null)
+        ? filteredResults.query(
+            "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions",
+            [values],
+          )
+        : query<T>(
+            query: "$matchKey IN \$0 SORT($sortKey $sort) $limitOptions",
+            params: [values],
+          );
+
+    return results;
+  }
+
+  RealmResults<T>? _entriesListSearch<T extends RealmObject>({
+    required Map<String, Object> searchFilters,
+    required String sortKey,
+    required int limit,
+    Map<String, Object>? filters,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    int filterIndex = -1;
+    int searchFilterIndex = -1;
+    final String filter = (filters != null)
+        ? filters.entries.map((entry) {
+            filterIndex++;
+            return "${entry.key} == \$$filterIndex";
+          }).join(" AND ")
+        : "";
+    final String searchFilter = searchFilters.entries.map((entry) {
+      searchFilterIndex++;
+      return "${entry.key} LIKE[c] \$$searchFilterIndex";
+    }).join(" OR ");
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String limitOptions = (limit > 0) ? "LIMIT($limit)" : "";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final List<Object> searchValues = searchFilters.values.toList();
+    final List<Object>? filterValues =
+        (filters != null) ? filters.values.toList() : null;
+    final RealmResults<T>? filteredResults = (filters != null)
+        ? query<T>(
+            query: "$filter SORT($sortKey $sort) $limitOptions",
+            params: [...filterValues!],
+          )
+        : null;
+    final RealmResults<T> results = (filteredResults != null)
+        ? filteredResults.query(
+            "$searchFilter SORT($sortKey $sort) $limitOptions $distinctOptions",
+            [...searchValues],
+          )
+        : query<T>(
+            query: "$searchFilter SORT($sortKey $sort)"
+                " $limitOptions $distinctOptions",
+            params: [...searchValues],
+          );
+
+    return results;
+  }
+
+  RealmResults<T>? _entriesAllList<T extends RealmObject>({
+    String? sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String sortOptions = (sortKey != null) ? "SORT($sortKey $sort)" : "";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final RealmResults<T> results = (sortKey != null)
+        ? queryAll<T>(query: "$sortOptions $distinctOptions", params: [""])
+        : realm.all<T>();
+
+    return results;
+  }
+
+  RealmResults<T>? _entriesAllListSorted<T extends RealmObject>({
+    required String sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  }) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    final String distinctOptions =
+        (distinctKey != null) ? "DISTINCT($distinctKey)" : "";
+    final RealmResults<T> results = query<T>(
+      query: "TRUEPREDICATE SORT($sortKey $sort) $distinctOptions",
+      params: [""],
+    );
+
+    return results;
+  }
+
+  RealmResults<T>? _entriesInRange<T extends RealmObject>({
+    required String matchKey,
+    required String dateKey,
+    required String sortKey,
+    required Object value,
+    required DateTime startDate,
+    required DateTime endDate,
+    bool ascending = false,
+    bool entireDay = false,
+  }) {
+    final String sort = (ascending) ? "ASC" : "DESC";
+    DateTime realStartDate = startDate;
+    DateTime realEndDate = endDate;
+
+    // start from the beginning of the first day, to the end of the last day
+    if (entireDay) {
+      realStartDate = startDate.copyWith(
+        hour: 0,
+        minute: 0,
+        millisecond: 0,
+        microsecond: 0,
+      );
+      realEndDate = endDate.copyWith(
+        hour: 23,
+        minute: 59,
+        millisecond: 0,
+        microsecond: 0,
+      );
+    }
+
+    final RealmResults<T> results = query<T>(
+      query: "$matchKey == \$0 AND $dateKey"
+          " BETWEEN{\$1, \$2} SORT($sortKey $sort)",
+      params: [value, realStartDate, realEndDate],
+    );
+
+    return results;
   }
 }

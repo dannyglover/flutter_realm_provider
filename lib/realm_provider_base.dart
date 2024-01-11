@@ -66,11 +66,31 @@ abstract interface class RealmProviderBase {
     required Map<String, Object> filters,
     required String sortKey,
     required int limit,
+    String? distinctKey,
+    bool ascending = false,
+  });
+
+  /// gets a count of entries that match the given filters
+  int entriesListCount<T extends RealmObject>({
+    required Map<String, Object> filters,
+    required String sortKey,
+    required int limit,
+    String? distinctKey,
     bool ascending = false,
   });
 
   /// gets a list of entries where any values match the given filters
   List<T>? entriesListWhereAnyIn<T extends RealmObject>({
+    required String matchKey,
+    required String sortKey,
+    required List<Object> values,
+    required int limit,
+    Map<String, Object>? filters,
+    bool ascending = false,
+  });
+
+  /// gets a count of entries where any values match the given filters
+  int entriesListWhereAnyInCount<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
     required List<Object> values,
@@ -89,11 +109,39 @@ abstract interface class RealmProviderBase {
     bool ascending = false,
   });
 
+  /// gets a count of entries that match the given search query
+  int entriesListSearchCount<T extends RealmObject>({
+    required Map<String, Object> searchFilters,
+    required String sortKey,
+    required int limit,
+    Map<String, Object>? filters,
+    String? distinctKey,
+    bool ascending = false,
+  });
+
   /// gets a list of every entry in the database
-  List<T>? entriesAllList<T extends RealmObject>();
+  List<T>? entriesAllList<T extends RealmObject>({
+    String? sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  });
+
+  /// gets a count of every entry in the database
+  int entriesAllListCount<T extends RealmObject>({
+    String? sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  });
 
   /// gets a list of every entry in the database, sorted
   List<T>? entriesAllListSorted<T extends RealmObject>({
+    required String sortKey,
+    String? distinctKey,
+    bool ascending = false,
+  });
+
+  /// gets a count of every entry in the database, sorted
+  int entriesAllListSortedCount<T extends RealmObject>({
     required String sortKey,
     String? distinctKey,
     bool ascending = false,
@@ -108,6 +156,19 @@ abstract interface class RealmProviderBase {
     required DateTime startDate,
     required DateTime endDate,
     bool ascending = false,
+    bool entireDay = false,
+  });
+
+  /// returns a count of entries found between the two date ranges
+  int entriesInRangeCount<T extends RealmObject>({
+    required String matchKey,
+    required String dateKey,
+    required String sortKey,
+    required Object value,
+    required DateTime startDate,
+    required DateTime endDate,
+    bool ascending = false,
+    bool entireDay = false,
   });
 
   /// removes an entry with the specified id
@@ -128,6 +189,7 @@ abstract interface class RealmProviderBase {
     required DateTime startDate,
     required DateTime endDate,
     bool ascending = false,
+    bool entireDay = false,
   });
 
   /// removes all entries which match the given filters
