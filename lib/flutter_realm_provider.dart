@@ -144,7 +144,7 @@ class RealmProvider implements RealmProviderBase {
       ascending: ascending,
     );
 
-    if (results == null) {
+    if (results == null || results.isEmpty) {
       return null;
     }
 
@@ -188,7 +188,7 @@ class RealmProvider implements RealmProviderBase {
       ascending: ascending,
     );
 
-    if (results == null) {
+    if (results == null || results.isEmpty) {
       return null;
     }
 
@@ -234,7 +234,7 @@ class RealmProvider implements RealmProviderBase {
       ascending: ascending,
     );
 
-    if (results == null) {
+    if (results == null || results.isEmpty) {
       return null;
     }
 
@@ -274,7 +274,7 @@ class RealmProvider implements RealmProviderBase {
       ascending: ascending,
     );
 
-    if (results == null) {
+    if (results == null || results.isEmpty) {
       return null;
     }
 
@@ -308,7 +308,7 @@ class RealmProvider implements RealmProviderBase {
       ascending: ascending,
     );
 
-    if (results == null) {
+    if (results == null || results.isEmpty) {
       return null;
     }
 
@@ -352,7 +352,7 @@ class RealmProvider implements RealmProviderBase {
       entireDay: entireDay,
     );
 
-    if (results == null) {
+    if (results == null || results.isEmpty) {
       return null;
     }
 
@@ -521,7 +521,6 @@ class RealmProvider implements RealmProviderBase {
     return results;
   }
 
-  @override
   RealmResults<T>? _entriesListWhereAnyIn<T extends RealmObject>({
     required String matchKey,
     required String sortKey,
