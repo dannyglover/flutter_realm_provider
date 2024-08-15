@@ -1,7 +1,7 @@
 name: flutter_realm_provider
 description: A realm provider for flutter realm.
 publish_to: none
-version: 1.0.2
+version: 1.0.3
 homepage:
 environment:
   sdk: '>=3.1.3 <4.0.0'
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  realm: ^2.2.1
+  realm: ^3.4.1
 # dev dependencies
 dev_dependencies:
   flutter_test:
